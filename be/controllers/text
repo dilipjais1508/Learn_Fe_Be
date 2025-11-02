@@ -1,0 +1,8 @@
+> for email, internal css and external css are not working so we can use only inline css.
+>email tempelate not applied , position and enimation are nokt used in new email template.
+
+> work
+jb bhii hm login kre to only email  user table me ja kr store ho .
+
+EMAIL_USER=dilipjaiswal8104@gmail.com
+EMAIL_PASS=yenv gpon kzxk lgwl
