@@ -1,8 +1,15 @@
 import React from "react";
 import { Bell, LogOut } from "lucide-react";
-import { NavLink } from "react-router-dom"; // 👈 use NavLink instead of Link
+import { NavLink,useNavigate  } from "react-router-dom"; // 👈 use NavLink instead of Link
 
 const Navbar = () => {
+    const navigate = useNavigate(); // for navigation
+
+  const handleLogout = () => {
+    localStorage.removeItem("token"); // remove token
+    navigate("/login"); // redirect to login page
+  };
+
   return (
     <nav className="bg-[#264b3e] text-gray-300 px-6 py-3 shadow-md">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
@@ -61,7 +68,7 @@ const Navbar = () => {
             <Bell size={22} />
           </button>
 
-          <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-md transition duration-300 flex items-center space-x-1">
+          <button onClick={handleLogout}  className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-md transition duration-300 flex items-center space-x-1">
             <LogOut size={18} />
             <span>Logout</span>
           </button>
