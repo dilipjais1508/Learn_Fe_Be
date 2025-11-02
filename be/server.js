@@ -1,11 +1,16 @@
 const express = require("express");
 const dotenv = require("dotenv");
+const cors = require("cors");
 const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
 
 dotenv.config();
 const app = express();
+
+// ✅ Enable CORS for all routes
+app.use(cors());
+
 
 // Middleware
 app.use(express.json());
