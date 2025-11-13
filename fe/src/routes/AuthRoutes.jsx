@@ -1,5 +1,11 @@
 import React from "react";
-import { Routes, Route, Navigate, useLocation, matchRoutes } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+  matchRoutes,
+} from "react-router-dom";
 import Navbar from "../components/Navbar";
 
 // ✅ Import your pages & components
@@ -12,6 +18,7 @@ import AboutPage from "../pages/About";
 import ContactPage from "../pages/Contact";
 import ServicesPage from "../pages/Services";
 import NotFound from "../components/NotFound";
+import AddUser from "../pages/AddUser"; // ✅ NEW
 
 const AuthRoutes = () => {
   const location = useLocation();
@@ -27,6 +34,8 @@ const AuthRoutes = () => {
     { path: "/contact", element: <ContactPage /> },
     { path: "/services", element: <ServicesPage /> },
     { path: "/", element: <Navigate to="/home" /> },
+    { path: "/add-user", element: <AddUser /> }, // ✅ NEW ROUTE
+    {path: "/edit-user/:id", element: <AddUser />}
   ];
 
   // ✅ Detect invalid (404) route
@@ -43,7 +52,8 @@ const AuthRoutes = () => {
 
   // ✅ Hide Navbar for Auth routes + 404
   const shouldHideNavbar =
-    hideNavbarRoutes.some((route) => location.pathname.startsWith(route)) || is404;
+    hideNavbarRoutes.some((route) => location.pathname.startsWith(route)) ||
+    is404;
 
   return (
     <>
@@ -55,14 +65,14 @@ const AuthRoutes = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-
         {/* ===== Main Pages (With Navbar) ===== */}
         <Route path="/" element={<Navigate to="/home" />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/services" element={<ServicesPage />} />
-
+        <Route path="/add-user" element={<AddUser />} /> {/* ✅ NEW */}
+        <Route path="/edit-user/:id" element={<AddUser />} />
         {/* ===== 404 Page (No Navbar) ===== */}
         <Route path="*" element={<NotFound />} />
       </Routes>
