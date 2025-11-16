@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { UserCircle } from "lucide-react";
 import axios from "axios";
 
 const AddUser = () => {
   const navigate = useNavigate();
-  const { id } = useParams(); // ✅ get id if user is editing
+  const { id } = useParams();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -14,23 +13,28 @@ const AddUser = () => {
     mobileNumber: "",
     age: "",
   });
-  const [profileImg, setProfileImg] = useState(null);
 
-  // ✅ Fetch user details if in edit mode
+  const [profileImg, setProfileImg] = useState(null);
+  const [preview, setPreview] = useState(null);
+
+  // Fetch user data in edit mode
   useEffect(() => {
     if (id) {
-      // only run if editing
       const fetchUser = async () => {
         try {
-          const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/users/${id}`);
+          const res = await axios.get(
+            `${import.meta.env.VITE_BASE_URL}/users/${id}`
+          );
+
           setFormData({
             name: res.data.name,
             email: res.data.email,
             address: res.data.address,
             mobileNumber: res.data.mobileNumber,
             age: res.data.age,
-            
           });
+
+          setPreview(res.data.profileImg);
         } catch (error) {
           console.error("Error fetching user:", error);
         }
@@ -39,6 +43,7 @@ const AddUser = () => {
     }
   }, [id]);
 
+  // Input change
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -46,10 +51,17 @@ const AddUser = () => {
     });
   };
 
+  // Image change + preview
   const handleImageChange = (e) => {
-    setProfileImg(e.target.files[0]);
+    const file = e.target.files[0];
+    setProfileImg(file);
+
+    if (file) {
+      setPreview(URL.createObjectURL(file));
+    }
   };
 
+  // Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -59,111 +71,154 @@ const AddUser = () => {
       if (profileImg) data.append("profileImg", profileImg);
 
       if (id) {
-        // ✅ UPDATE user
         await axios.put(`${import.meta.env.VITE_BASE_URL}/users/${id}`, data, {
           headers: { "Content-Type": "multipart/form-data" },
         });
-        alert("✅ User updated successfully!");
+        alert("User updated successfully!");
       } else {
-        // ✅ ADD new user
         await axios.post(`${import.meta.env.VITE_BASE_URL}/users`, data, {
           headers: { "Content-Type": "multipart/form-data" },
         });
-        alert("✅ User added successfully!");
+        alert("User added successfully!");
       }
 
-      navigate("/"); // redirect back home
+      navigate("/");
     } catch (error) {
       console.error("Error saving user:", error);
-      alert("❌ Failed to save user.");
+      alert("Failed to save user.");
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 px-4">
-      <div className="bg-white shadow-xl rounded-2xl p-2 w-full max-w-md relative">
-        {/* Profile Icon */}
-        <div className="flex justify-center">
-          <UserCircle className="w-24 h-24 text-blue-600 mb-4" />
-        </div>
+    <div className="flex flex-col items-center px-4 mt-4">
+      <h2 className="text-2xl font-semibold mb-4 text-gray-700 text-left w-full">
+        {id ? "Edit User" : "Add New User"}
+      </h2>
 
-        <h2 className="text-2xl font-semibold text-center mb-6 text-gray-700">
-          {id ? "Edit User" : "Add New User"} {/* ✅ dynamic title */}
-        </h2>
+      {/* Profile Image */}
+      <div className="flex justify-center mb-6 relative">
+        <label htmlFor="profileInput" className="cursor-pointer relative">
+          <img
+            src={
+              preview ||
+              "https://cdn-icons-png.flaticon.com/512/3177/3177440.png"
+            }
+            alt="Profile"
+            className="w-28 h-28 rounded-full object-cover border-2 border-gray-300"
+          />
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Camera Icon */}
+          <div className="absolute bottom-0 right-0 bg-blue-600 p-2 rounded-full shadow-md">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3 7h2l2-3h10l2 3h2v13H3V7zm9 3a4 4 0 100 8 4 4 0 000-8z"
+              />
+            </svg>
+          </div>
+        </label>
+
+        <input
+          type="file"
+          id="profileInput"
+          accept="image/*"
+          onChange={handleImageChange}
+          className="hidden"
+        />
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-2xl">
+        {/* Name */}
+        <div className="flex items-center gap-4">
+          <label className="w-32 text-gray-700 font-medium">Name</label>
           <input
             type="text"
             name="name"
-            placeholder="Enter Name"
             value={formData.name}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2"
+            className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
             required
           />
+        </div>
+
+        {/* Email */}
+        <div className="flex items-center gap-4">
+          <label className="w-32 text-gray-700 font-medium">Email</label>
           <input
             type="email"
             name="email"
-            placeholder="Enter Email"
             value={formData.email}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2"
+            className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
             required
           />
+        </div>
+
+        {/* Address */}
+        <div className="flex items-center gap-4">
+          <label className="w-32 text-gray-700 font-medium">Address</label>
           <input
             type="text"
             name="address"
-            placeholder="Enter Address"
             value={formData.address}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2"
+            className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
             required
           />
+        </div>
+
+        {/* Mobile */}
+        <div className="flex items-center gap-4">
+          <label className="w-32 text-gray-700 font-medium">Mobile</label>
           <input
             type="text"
             name="mobileNumber"
-            placeholder="Enter Mobile Number"
             value={formData.mobileNumber}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2"
+            className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
             required
           />
+        </div>
+
+        {/* Age */}
+        <div className="flex items-center gap-4">
+          <label className="w-32 text-gray-700 font-medium">Age</label>
           <input
             type="number"
             name="age"
-            placeholder="Enter Age"
             value={formData.age}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2"
+            className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
             required
           />
+        </div>
 
-          {/* Image Upload */}
-          <input
-            type="file"
-            name="image"
-            onChange={handleImageChange}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2"
-            
-          />
+        {/* Buttons */}
+        <div className="flex justify-between pt-4">
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500"
+          >
+            Cancel
+          </button>
 
-          <div className="flex justify-between pt-4">
-            <button
-              type="button"
-              onClick={() => navigate("/")}
-              className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-            >
-              {id ? "Update User" : "Add User"} {/* ✅ dynamic button */}
-            </button>
-          </div>
-        </form>
-      </div>
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+          >
+            {id ? "Update User" : "Add User"}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };
