@@ -3,8 +3,12 @@ const User = require("../models/userModel");
 // ➝ CREATE User with profileImg
 const createUser = async (req, res) => {
   try {
-    const { name, email, address, mobileNumber, age } = req.body;
-    
+    const { name, email, address, mobileNumber, age, gender } = req.body;
+    // Validate gender (optional but recommended)
+    const allowedGenders = ["male", "female", "other"];
+    if (!allowedGenders.includes(gender)) {
+      return res.status(400).json({ message: "Gender must be male, female, or other" });
+    }
     // If file uploaded, create full URL
     let profileImg = null;
     if (req.file) {
@@ -18,6 +22,7 @@ const createUser = async (req, res) => {
       mobileNumber,
       age,
       profileImg,
+      gender,
     });
 
     res.status(201).json(user);
@@ -51,7 +56,12 @@ const getUserById = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const updates = req.body;
-
+  if (updates.gender) {
+      const allowedGenders = ["male", "female", "other"];
+      if (!allowedGenders.includes(updates.gender)) {
+        return res.status(400).json({ message: "Gender must be male, female, or other" });
+      }
+    }
     if (req.file) {
       updates.profileImg = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
     }
