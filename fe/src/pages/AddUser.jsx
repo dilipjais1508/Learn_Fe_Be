@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import axios from "axios";
 
 const AddUser = () => {
@@ -12,6 +13,7 @@ const AddUser = () => {
     address: "",
     mobileNumber: "",
     age: "",
+    gender: "",
   });
 
   const [profileImg, setProfileImg] = useState(null);
@@ -32,6 +34,7 @@ const AddUser = () => {
             address: res.data.address,
             mobileNumber: res.data.mobileNumber,
             age: res.data.age,
+            gender: res.data.gender,
           });
 
           setPreview(res.data.profileImg);
@@ -74,12 +77,12 @@ const AddUser = () => {
         await axios.put(`${import.meta.env.VITE_BASE_URL}/users/${id}`, data, {
           headers: { "Content-Type": "multipart/form-data" },
         });
-        alert("User updated successfully!");
+        toast.success("Update successful! 🎉");
       } else {
         await axios.post(`${import.meta.env.VITE_BASE_URL}/users`, data, {
           headers: { "Content-Type": "multipart/form-data" },
         });
-        alert("User added successfully!");
+        toast.success("User added successfully! 🎉");
       }
 
       navigate("/");
@@ -199,6 +202,24 @@ const AddUser = () => {
             className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
             required
           />
+        </div>
+
+        <div className="flex items-center gap-4">
+          <label className="w-32 text-gray-700 font-medium">Gender</label>
+          <select
+            name="gender"
+            value={formData.gender}
+            onChange={(e) =>
+              setFormData({ ...formData, gender: e.target.value.toLowerCase() })
+            }
+            className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
+            required
+          >
+            <option value="">Select Gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
         </div>
 
         {/* Buttons */}

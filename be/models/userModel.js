@@ -8,11 +8,8 @@ const userSchema = new mongoose.Schema({
   age: { type: Number, required: true },
   profileImg: { type: String },
   // 👉 Add gender field here
-  gender: {
-    type: String,
-    enum: ["male", "female", "other"],  // allowed values
-    required: true                      // make gender mandatory
-  },
+  gender: {type: String,required: true}
+
 }, { timestamps: true });
 
 module.exports = mongoose.model("User", userSchema)

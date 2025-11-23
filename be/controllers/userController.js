@@ -34,12 +34,53 @@ const createUser = async (req, res) => {
 // ➝ READ all Users
 const getUsers = async (req, res) => {
   try {
-    const users = await User.find();
-    res.json(users);
+    // 👉 Query Parameters
+    let { page = 1, limit = 10, search = "", gender } = req.query;
+
+    // Convert page & limit to numbers
+    page = Number(page);
+    limit = Number(limit);
+
+    // 👉 Build search filter
+    const filter = {};
+
+    // Search by name OR address (case-insensitive)
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: "i" } },
+        // { address: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    // 👉 Gender filter (optional)
+    if (gender) {
+      filter.gender = gender;
+    }
+
+    // 👉 Pagination
+    const skip = (page - 1) * limit;
+
+    // 👉 Fetch users with sorting
+    const users = await User.find(filter)
+      .sort({ createdAt: -1 }) // latest data first
+      .skip(skip)
+      .limit(limit);
+
+    // 👉 Total Count for frontend pagination
+    const totalUsers = await User.countDocuments(filter);
+
+    res.json({
+      page,
+      limit,
+      totalUsers,
+      totalPages: Math.ceil(totalUsers / limit),
+      users,
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 // ➝ READ single User
 const getUserById = async (req, res) => {
